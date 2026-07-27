@@ -1,8 +1,11 @@
 package Tecnostore;
 
+import Persistencia.Conexion;
+
 public class TecnoStore {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        Conexion c= new Conexion();
+        c.conectar();
     }
 }
