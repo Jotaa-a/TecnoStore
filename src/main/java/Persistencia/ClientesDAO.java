@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
 
 public class ClientesDAO {
     Conexion c = new Conexion();
@@ -41,26 +43,76 @@ public class ClientesDAO {
     
     public void insert(Cliente cliente){
         try (Connection con = c.conectar()) {
-            String sql = "insert into clientes(nombre, identificacion, correo, telefono) values (?,?,?,?)";
-            PreparedStatement ps = con.prepareStatement(sql);
+            PreparedStatement ps = con.prepareStatement("insert into clientes(nombre, identificacion, correo, telefono) values (?,?,?,?)");
             ps.setString(1, cliente.getNombre());
+            ps.setString(2, cliente.getIdentificacion());
+            ps.setString(3, cliente.getCorreo());
+            ps.setString(4, cliente.getTelefono());
+            ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
     
-    public void crear(Producto p){
-        try (Connection con = c.conectar()){
-            String sql = ("insert into producto(nombre, descripcion, categoria_fk, stock, precio_compra, precio_venta) values (?,?,?,?,?,?)");
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, p.getNombre());
-            ps.setString(2, p.getDescripcion());
-            ps.setObject(3, p.getCategoria().getId());// Test
-            ps.setInt(4, p.getStock());
-            ps.setDouble(5, p.getPrecio_compra());
-            ps.setDouble(6, p.getPrecio_venta());
+    public void update(Cliente cliente){
+        try (Connection con = c.conectar()) {
+            PreparedStatement ps = con.prepareStatement("update clientes set nombre=?, identificacion=?, correo=?, telefono=?");
+            ps.setString(1, cliente.getNombre());
+            ps.setString(2, cliente.getIdentificacion());
+            ps.setString(3, cliente.getCorreo());
+            ps.setString(4, cliente.getTelefono());
+            ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        }
+    }
+    
+    public ArrayList<Cliente> listar(){
+        ArrayList<Cliente> respuesta = new ArrayList<>();
+        try (Connection con = c.conectar()){
+            PreparedStatement ps = con.prepareStatement("select * from clientes");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {                
+                respuesta.add(new Cliente(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return respuesta;
+    }
+    
+    public void buscar(int id){
+        Cliente cliente = null;
+        
+        try (Connection con = c.conectar()){
+            PreparedStatement ps = con.prepareStatement("select * from clientes where id = ?");
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {                
+                cliente = new Cliente(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public void delete(Cliente cliente){
+        if(cliente == null){
+            System.out.println("EL CLIENTE NO EXISTE");
+        } else {
+            int op = JOptionPane.showConfirmDialog(null, "¿Esttá seguro que desea eliminar a "+ cliente.getNombre()+"?", null, JOptionPane.YES_NO_OPTION);
+            if(op == 0){
+                try (Connection con = c.conectar()){
+                    PreparedStatement ps = con.prepareStatement("delete *  from clientes where id=?");
+                    ps.setInt(1, cliente.getId());
+                    ps.executeUpdate();
+                    System.out.println("Cliente "+ cliente.getNombre()+" eliminado con exito!");
+                } catch (SQLException e) {
+                    System.out.println(e.getMessage());
+                }
+            } else {
+                System.out.println("Operación cancelada");
+            }
         }
     }
     

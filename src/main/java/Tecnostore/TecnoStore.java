@@ -1,11 +1,15 @@
 package Tecnostore;
 
+import Logica.GestorVentas;
+import Modelo.Cliente;
 import Persistencia.Conexion;
 
 public class TecnoStore {
 
     public static void main(String[] args) {
-        Conexion c= new Conexion();
-        c.conectar();
+        Cliente cliente = new Cliente(0, "pedro", "1551120", "pedro@gmail.com", "123546");
+        
+        GestorVentas gs = new GestorVentas();
+        gs.registrarVenta();
     }
 }
