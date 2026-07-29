@@ -1,6 +1,5 @@
 package Persistencia;
 
-import Logica.ItemVenta;
 import Modelo.Celular;
 import Patron.FactoryCelular;
 import java.sql.Connection;
@@ -87,7 +86,7 @@ public class CelularesDAO {
     public Celular buscar(int id) {
         Celular celular = null;
         String sql = """
-                     SELECT
+                     select
                          c.id_ce,
                          c.precio,
                          c.stock,
@@ -102,18 +101,18 @@ public class CelularesDAO {
                          so.id_so,
                          so.nombre AS sistema
                      
-                     FROM celulares c
+                     from celulares c
                      
-                     INNER JOIN modelos m
+                     inner join modelos m
                          ON c.id_modelo = m.id_md
                      
-                     INNER JOIN marcas ma
+                     inner join marcas ma
                          ON m.id_marca = ma.id_mks
                      
-                     INNER JOIN sistema_operativo so
+                     inner join sistema_operativo so
                          ON m.id_so = so.id_so
                      
-                     WHERE c.id_ce = ?
+                     where c.id_ce = ?
                      """;
         try (Connection con = c.conectar()) {
             PreparedStatement ps = con.prepareStatement(sql);
@@ -147,4 +146,6 @@ public class CelularesDAO {
             }
         }
     }
+    
+    
 }

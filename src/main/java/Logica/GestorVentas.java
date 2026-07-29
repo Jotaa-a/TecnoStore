@@ -15,6 +15,7 @@ public class GestorVentas {
     private validarChar vCh = new validarChar();
     private ClientesDAO clientesDAO = new ClientesDAO();
     private CelularesDAO celularesDAO = new CelularesDAO();
+    private ReportesDAO reportesDAO = new ReportesDAO();
     private VentasDAO ventasDAO = new VentasDAO();
     private Scanner sc = new Scanner(System.in);
 
@@ -42,15 +43,15 @@ public class GestorVentas {
         }
         
         do {
-            ArrayList<Celular> celulares = celularesDAO.listar();
-            for(Celular celular : celulares){
-                System.out.println(
-                        celular.getId_celular() + " - " +
-                        celular.getModelo().getNombre() + 
-                        " - $" + celular.getPrecio() + 
-                        " - Stock: " + celular.getStock()
-                );
-            }
+            celularesDAO.listar()
+                        .stream()
+                        .forEach(celular -> System.out.println(
+                            celular.getId_celular() + " - "+
+                            celular.getModelo().getNombre() + " - "+
+                            " - $" + celular.getPrecio() + 
+                            " - Stock: "+ celular.getStock()
+                    ));
+            
             int id = vE.validarEntero("Ingrese el id del celular");
             Celular celular = celularesDAO.buscar(id);
             if (celular == null) {
@@ -74,21 +75,20 @@ public class GestorVentas {
             return;
         }
         
-        double subtotal = 0;
-        
         System.out.println("\n==== RESUMEN DE LA VENTA ====");
         System.out.println("Cliente: "+cliente.getNombre());
         System.out.println();
         
+        double subtotal = carrito.stream()
+                .mapToDouble(ItemVenta::getSubtotal)
+                .sum();
+        
         for(ItemVenta item: carrito){
-            
-            double sub = item.getSubtotal();
-            subtotal += sub;
-            
-            System.out.println("Celular: "+ item.getCelular().getModelo().getNombre()+
-                                " | Cantidad: "+ item.getCantidad()+
-                                " | Precio: "+item.getCelular().getPrecio()+
-                                " | Subtotal: $%,.0f%n"+sub
+            System.out.printf("Celular: %s | Cantidad: %s | Precio: $%,.0f | Subtotal: $%,.0f%n",
+                                item.getCelular().getModelo().getNombre(),
+                                item.getCantidad(),
+                                item.getCelular().getPrecio(),
+                                item.getSubtotal()
             );
         }
         
@@ -114,5 +114,10 @@ public class GestorVentas {
         }
     }
     
+    public void ventasPorMes(){
+        reportesDAO.ventaMes()
+                .stream()
+                .forEach(System.out::println);
+    }
     
 }
