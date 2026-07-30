@@ -4,6 +4,7 @@ import Modelo.Celular;
 import Modelo.Cliente;
 import Persistencia.*;
 import Utilidades.*;
+import java.io.IOException;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -18,8 +19,9 @@ public class GestorVentas {
     private ReportesDAO reportesDAO = new ReportesDAO();
     private VentasDAO ventasDAO = new VentasDAO();
     private Scanner sc = new Scanner(System.in);
+    private GestorClientes gC = new GestorClientes();
 
-    public void registrarVenta() {
+    public void registrarVenta() throws IOException {
         String identificacion = vI.validarIdentificacion("Ingrese la identificación del cliente");
         ArrayList<ItemVenta> carrito = new ArrayList<>();
         Cliente cliente = clientesDAO.buscarPorIdentificacion(identificacion);
@@ -30,16 +32,7 @@ public class GestorVentas {
         }
 
         if (cliente == null) {
-            System.out.println("Cliente no registrado");
-            System.out.println("Ingrese el nombre:");
-            String nombre = sc.nextLine();
-            String correo = vC.validarCorreo("Ingrese el correo");
-            System.out.println("Ingrese el telefono:");
-            String telefono = sc.nextLine();
-
-            cliente = new Cliente(0, nombre, identificacion, correo, telefono);
-            clientesDAO.insert(cliente);
-            cliente = clientesDAO.buscarPorIdentificacion(cliente.getIdentificacion());
+            gC.registrarCLiente();
         }
         
         do {
@@ -106,6 +99,8 @@ public class GestorVentas {
             
             if(registrada){
                 System.out.println("Venta registrada con exito!");
+                ReporteUtils reporte = new ReporteUtils();
+                reporte.generarReporteVentas();
             } else {
                 System.out.println("Error al registrar la venta!");
             }
@@ -114,10 +109,5 @@ public class GestorVentas {
         }
     }
     
-    public void ventasPorMes(){
-        reportesDAO.ventaMes()
-                .stream()
-                .forEach(System.out::println);
-    }
     
 }

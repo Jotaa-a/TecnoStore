@@ -13,7 +13,6 @@ public class CelularesDAO {
 
     Conexion c = new Conexion();
     private final FactoryCelular factory = new FactoryCelular();
-    
 
     public void insert(Celular celular) {
         try (Connection con = c.conectar()) {
@@ -73,7 +72,7 @@ public class CelularesDAO {
         try (Connection con = c.conectar()) {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 respuesta.add(factory.crear(rs));
             }
@@ -127,25 +126,22 @@ public class CelularesDAO {
         return celular;
     }
 
-    public void delete(Celular celular) {
+    public boolean delete(Celular celular) {
         if (celular == null) {
             System.out.println("NO EXISTE EL CELULAR!");
-        } else {
-            int op = JOptionPane.showConfirmDialog(null, "¿Esta segur@ de eliminar a " + celular.getModelo() + "?", null, JOptionPane.YES_NO_OPTION);
-            if (op == 0) {
-                try (Connection con = c.conectar()) {
-                    PreparedStatement ps = con.prepareStatement("delete from celulares where id=?");
-                    ps.setInt(1, celular.getId_celular());
-                    ps.executeUpdate();
-                    System.out.println("Celular" + celular.getModelo() + " eliminado con exito");
-                } catch (SQLException e) {
-                    System.out.println(e.getMessage());
-                }
-            } else {
-                System.out.println("Operacion cancelada!");
-            }
+            return false;
         }
+
+        try (Connection con = c.conectar()) {
+            PreparedStatement ps = con.prepareStatement("delete from celulares where id_ce=?");
+            ps.setInt(1, celular.getId_celular());
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+
     }
-    
-    
+
 }

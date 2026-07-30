@@ -1,17 +1,44 @@
-
 package Persistencia;
 
 import Modelo.Celular;
+import Modelo.Gama;
+import Modelo.Marca;
+import Modelo.ModeloCelular;
+import Modelo.Sistema_operativo;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import Patron.FactoryModeloCelular;
 
 public class ModeloDAO {
+
     private ArrayList<Celular> celular = new ArrayList<>();
+    private Conexion c = new Conexion();
+
+    private FactoryModeloCelular factory = new FactoryModeloCelular();
     
-    public ArrayList<ModeloCelular> listar(){
+    public void update(ModeloCelular modelo) {
+        try (Connection con = c.conectar()) {
+            String sql = "update modelos set id_marca=?, id_so=?, modelo=?, gama=? where id_md=?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, modelo.getId_md());
+            ps.setDouble(2, modelo.getMarca().getId_mk());
+            ps.setInt(3, modelo.getSo().getId_so());
+            ps.setString(4, modelo.getNombre());
+            ps.setObject(5, modelo.getGama());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
-    ArrayList<ModeloCelular> respuesta = new ArrayList<>();
+    public ArrayList<ModeloCelular> listar() {
 
-    String sql = """
+        ArrayList<ModeloCelular> respuesta = new ArrayList<>();
+
+        String sql = """
         SELECT
             m.id_md,
             m.modelo,
@@ -32,48 +59,28 @@ public class ModeloDAO {
             ON m.id_so = so.id_so
         """;
 
-    try(Connection con = c.conectar()){
+        try (Connection con = c.conectar()) {
 
-        PreparedStatement ps = con.prepareStatement(sql);
+            PreparedStatement ps = con.prepareStatement(sql);
 
-        ResultSet rs = ps.executeQuery();
+            ResultSet rs = ps.executeQuery();
 
-        while(rs.next()){
+            while (rs.next()) {
 
-            Marca marca = new Marca(
-                    rs.getInt("id_mks"),
-                    rs.getString("marca")
-            );
+                respuesta.add(factory.crear(rs));
 
-            Sistema_operativo sistema = new Sistema_operativo(
-                    rs.getInt("id_so"),
-                    rs.getString("sistema")
-            );
+            }
 
-            ModeloCelular modelo = new ModeloCelular(
-                    rs.getInt("id_md"),
-                    marca,
-                    sistema,
-                    rs.getString("modelo"),
-                    Gama.valueOf(rs.getString("gama"))
-            );
-
-            respuesta.add(modelo);
-
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-    }catch(SQLException e){
-        e.printStackTrace();
+        return respuesta;
     }
 
-    return respuesta;
-}
-    
     public ModeloCelular buscar(int id) {
 
-    ModeloCelular modelo = null;
-
-    String sql = """
+        String sql = """
         SELECT
             m.id_md,
             m.modelo,
@@ -96,40 +103,19 @@ public class ModeloDAO {
         WHERE m.id_md = ?
         """;
 
-    try(Connection con = c.conectar()){
+        try (Connection con = c.conectar()) {
 
-        PreparedStatement ps = con.prepareStatement(sql);
-        ps.setInt(1, id);
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, id);
 
-        ResultSet rs = ps.executeQuery();
+            ResultSet rs = ps.executeQuery();
 
-        if(rs.next()){
-
-            Marca marca = new Marca(
-                    rs.getInt("id_mks"),
-                    rs.getString("marca")
-            );
-
-            Sistema_operativo sistema = new Sistema_operativo(
-                    rs.getInt("id_so"),
-                    rs.getString("sistema")
-            );
-
-            modelo = new ModeloCelular(
-                    rs.getInt("id_md"),
-                    marca,
-                    sistema,
-                    rs.getString("modelo"),
-                    Gama.valueOf(rs.getString("gama"))
-            );
-
+            if (rs.next()) {
+                return factory.crear(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
-    }catch(SQLException e){
-        e.printStackTrace();
+        return null;
     }
-
-    return modelo;
-}
-    
 }

@@ -18,16 +18,14 @@ public class MenuCelulares {
                                2. Actualizar dispositivo
                                3. Eliminar dispositivo
                                4. Listas dispositivos
-                               5. Stocks bajo
-                               6. Top dispositivos vendidos
-                               7. salir
+                               5. salir
                                ================================
                                """);
             opcion = vInt.validarEntero("Seleccione una opcion");
             
             switch (opcion) {
                 case 1:
-                    gestor.insertCelular();
+                    gestor.registrarCelular();
                     break;
                 case 2:
                     gestor.actualizarCelular();
@@ -39,17 +37,9 @@ public class MenuCelulares {
                     gestor.listarCelulares();
                     break;
                 case 5:
-                    gestor.stockCelulares();
-                    break;
-                case 6:
-                    gestor.topVendidos();
-                    break;
-                case 7:
                      System.out.println("Regresando al menú principal...");
                     break;
-                default:
-                     System.out.println("Opción inválida.");
             }
-        } while (opcion != 7);
+        } while (opcion != 5);
     }
 }

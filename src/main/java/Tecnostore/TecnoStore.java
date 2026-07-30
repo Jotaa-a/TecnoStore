@@ -13,8 +13,7 @@ public class TecnoStore {
         //GestorVentas gs = new GestorVentas();
         //gs.registrarVenta();
         
-        GestorCelulares gc = new GestorCelulares();
-        gc.stockCelulares();
-        gc.topVendidos();
+        Menu menu = new Menu();
+        menu.iniciar();
     }
 }
