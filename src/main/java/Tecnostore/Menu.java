@@ -24,10 +24,12 @@ public class Menu {
             op = vE.validarEntero("Elija una opción");
             switch (op) {
                 case 1:
-                    GestorCelulares gc = new GestorCelulares();
-                    gc.stockCelulares();
-                    gc.topVendidos();
+                    MenuCelulares menuCelulares = new MenuCelulares();
+                    menuCelulares.menu();
                     break;
+                case 2:
+                    MenuClientes menuClientes = new MenuClientes();
+                    menuClientes.menu();
                 
             }
         } while (op < 5);
